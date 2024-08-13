@@ -1,5 +1,4 @@
-
-import { iterate } from '@orchidjs/sifter/lib/utils';
+import { iterate } from "@orchidjs/sifter/lib/utils";
 
 /**
  * Return a dom element from either a dom query string, jQuery object, a dom element or html string
@@ -7,18 +6,17 @@ import { iterate } from '@orchidjs/sifter/lib/utils';
  *
  * param query should be {}
  */
-export const getDom = ( query:any ):HTMLElement => {
-
-	if( query.jquery ){
+export const getDom = (query: any): HTMLElement => {
+	if (query.jquery) {
 		return query[0];
 	}
 
-	if( query instanceof HTMLElement ){
+	if (query instanceof HTMLElement) {
 		return query;
 	}
 
-	if( isHtmlString(query) ){
-		var tpl = document.createElement('template');
+	if (isHtmlString(query)) {
+		var tpl = document.createElement("template");
 		tpl.innerHTML = query.trim(); // Never return a text node of whitespace as the result
 		return tpl.content.firstChild as HTMLElement;
 	}
@@ -26,121 +24,125 @@ export const getDom = ( query:any ):HTMLElement => {
 	return document.querySelector(query);
 };
 
-export const isHtmlString = (arg:any): boolean => {
-	if( typeof arg === 'string' && arg.indexOf('<') > -1 ){
+export const isHtmlString = (arg: any): boolean => {
+	if (typeof arg === "string" && arg.indexOf("<") > -1) {
 		return true;
 	}
 	return false;
-}
+};
 
-export const escapeQuery = (query:string):string => {
-	return query.replace(/['"\\]/g, '\\$&');
-}
+export const escapeQuery = (query: string): string => {
+	return query.replace(/['"\\]/g, "\\$&");
+};
 
 /**
  * Dispatch an event
  *
  */
-export const triggerEvent = ( dom_el:HTMLElement, event_name:string ):void => {
-	var event = document.createEvent('HTMLEvents');
+export const triggerEvent = (dom_el: HTMLElement, event_name: string): void => {
+	var event = document.createEvent("HTMLEvents");
 	event.initEvent(event_name, true, false);
-	dom_el.dispatchEvent(event)
+	dom_el.dispatchEvent(event);
 };
 
 /**
  * Apply CSS rules to a dom element
  *
  */
-export const applyCSS = ( dom_el:HTMLElement, css:{ [key: string]: string|number }):void => {
+export const applyCSS = (
+	dom_el: HTMLElement,
+	css: { [key: string]: string | number }
+): void => {
 	Object.assign(dom_el.style, css);
-}
-
+};
 
 /**
  * Add css classes
  *
  */
-export const addClasses = ( elmts:HTMLElement|HTMLElement[], ...classes:string[]|string[][] ) => {
+export const addClasses = (
+	elmts: HTMLElement | HTMLElement[],
+	...classes: string[] | string[][]
+) => {
+	var norm_classes = classesArray(classes);
+	elmts = castAsArray(elmts);
 
-	var norm_classes 	= classesArray(classes);
-	elmts				= castAsArray(elmts);
-
-	elmts.map( el => {
-		norm_classes.map( cls => {
-			el.classList.add( cls );
+	elmts.map((el) => {
+		norm_classes.map((cls) => {
+			el.classList.add(cls);
 		});
 	});
-}
+};
 
 /**
  * Remove css classes
  *
  */
- export const removeClasses = ( elmts:HTMLElement|HTMLElement[], ...classes:string[]|string[][] ) => {
+export const removeClasses = (
+	elmts: HTMLElement | HTMLElement[],
+	...classes: string[] | string[][]
+) => {
+	var norm_classes = classesArray(classes);
+	elmts = castAsArray(elmts);
 
- 	var norm_classes 	= classesArray(classes);
-	elmts				= castAsArray(elmts);
-
-	elmts.map( el => {
-		norm_classes.map(cls => {
-	 		el.classList.remove( cls );
+	elmts.map((el) => {
+		norm_classes.map((cls) => {
+			el.classList.remove(cls);
 		});
- 	});
- }
-
+	});
+};
 
 /**
  * Return arguments
  *
  */
-export const classesArray = (args:string[]|string[][]):string[] => {
-	var classes:string[] = [];
-	iterate( args, (_classes) =>{
-		if( typeof _classes === 'string' ){
-			_classes = _classes.trim().split(/[\11\12\14\15\40]/);
+export const classesArray = (args: string[] | string[][]): string[] => {
+	var classes: string[] = [];
+	iterate(args, (_classes) => {
+		if (typeof _classes === "string") {
+			_classes = _classes.trim().split(/[\x09\x0a\x0c\x0d\x20]/);
 		}
-		if( Array.isArray(_classes) ){
+		if (Array.isArray(_classes)) {
 			classes = classes.concat(_classes);
 		}
 	});
 
 	return classes.filter(Boolean);
-}
-
+};
 
 /**
  * Create an array from arg if it's not already an array
  *
  */
-export const castAsArray = (arg:any):Array<any> => {
-	if( !Array.isArray(arg) ){
- 		arg = [arg];
- 	}
+export const castAsArray = (arg: any): Array<any> => {
+	if (!Array.isArray(arg)) {
+		arg = [arg];
+	}
 	return arg;
-}
-
+};
 
 /**
  * Get the closest node to the evt.target matching the selector
  * Stops at wrapper
  *
  */
-export const parentMatch = ( target:null|HTMLElement, selector:string, wrapper?:HTMLElement ):HTMLElement|void => {
-
-	if( wrapper && !wrapper.contains(target) ){
+export const parentMatch = (
+	target: null | HTMLElement,
+	selector: string,
+	wrapper?: HTMLElement
+): HTMLElement | void => {
+	if (wrapper && !wrapper.contains(target)) {
 		return;
 	}
 
-	while( target && target.matches ){
-
-		if( target.matches(selector) ){
+	while (target && target.matches) {
+		if (target.matches(selector)) {
 			return target;
 		}
 
 		target = target.parentNode as HTMLElement;
 	}
-}
-
+};
 
 /**
  * Get the first or last item from an array
@@ -149,62 +151,64 @@ export const parentMatch = ( target:null|HTMLElement, selector:string, wrapper?:
  * <= 0 - left (first)
  *
  */
-export const getTail = ( list:Array<any>|NodeList, direction:number=0 ):any => {
-
-	if( direction > 0 ){
-		return list[list.length-1];
+export const getTail = (
+	list: Array<any> | NodeList,
+	direction: number = 0
+): any => {
+	if (direction > 0) {
+		return list[list.length - 1];
 	}
 
 	return list[0];
-}
+};
 
 /**
  * Return true if an object is empty
  *
  */
-export const isEmptyObject = (obj:object):boolean => {
-	return (Object.keys(obj).length === 0);
-}
-
+export const isEmptyObject = (obj: object): boolean => {
+	return Object.keys(obj).length === 0;
+};
 
 /**
  * Get the index of an element amongst sibling nodes of the same type
  *
  */
-export const nodeIndex = ( el:null|Element, amongst?:string ):number => {
+export const nodeIndex = (el: null | Element, amongst?: string): number => {
 	if (!el) return -1;
 
 	amongst = amongst || el.nodeName;
 
 	var i = 0;
-	while( el = el.previousElementSibling ){
-
-		if( el.matches(amongst) ){
+	while ((el = el.previousElementSibling)) {
+		if (el.matches(amongst)) {
 			i++;
 		}
 	}
 	return i;
-}
-
+};
 
 /**
  * Set attributes of an element
  *
  */
-export const setAttr = (el:Element,attrs:{ [key: string]: null|string|number }) => {
-	iterate( attrs,(val,attr) => {
-		if( val == null ){
+export const setAttr = (
+	el: Element,
+	attrs: { [key: string]: null | string | number }
+) => {
+	iterate(attrs, (val, attr) => {
+		if (val == null) {
 			el.removeAttribute(attr as string);
-		}else{
-			el.setAttribute(attr as string, ''+val);
+		} else {
+			el.setAttribute(attr as string, "" + val);
 		}
 	});
-}
-
+};
 
 /**
  * Replace a node
  */
-export const replaceNode = ( existing:Node, replacement:Node ) => {
-	if( existing.parentNode ) existing.parentNode.replaceChild(replacement, existing);
-}
+export const replaceNode = (existing: Node, replacement: Node) => {
+	if (existing.parentNode)
+		existing.parentNode.replaceChild(replacement, existing);
+};
